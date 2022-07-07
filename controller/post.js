@@ -104,8 +104,6 @@ const cloudinary = require("cloudinary");
 
 
 
-
-
 // using Cloudinary
 async function Addpost(req,res){
     try{
@@ -384,7 +382,7 @@ async function Likes(req,res){
             if(isLiked){
                 post.likes.pull(user_id)
                 await post.save();
-                
+
                 var response = {
                     status: 200,
                     message: 'Post has been Disliked.',

@@ -500,26 +500,39 @@ async function UpdateUser(req, res) {
                 } else {
 
                   if(req.body.category){
-                    //console.log(typeof ObjectId(req.body.category));
-                    //console.log(docs.category);
-                    docs.category=ObjectId(req.body.category);
-                    await docs.save();
-                    //console.log(docs.category);
-                    if(req.body.subcategory.length == 24){
-                      console.log("hello");
-                      docs.subcategory= ObjectId(req.body.subcategory)
+                    docs.category = [];
+                    //console.log(req.body.category.length);
+                    if(req.body.category.length == 24){
+                      docs.category= ObjectId(req.body.category)
+                      await docs.save();
                     }
                     //console.log(typeof req.body.subcategory);
                     else{
-                    for(var b=0; b<req.body.subcategory.length;b++){
+                    for(var b=0; b<req.body.category.length;b++){
                       //console.log(typeof req.body.subcategory[b]);
                       //console.log(docs.subcategory[b]);
-                      docs.subcategory[b] = ObjectId(req.body.subcategory[b])
+                      docs.category[b] = ObjectId(req.body.category[b])
                       //docs.subcategory.push(req.body.subcategory[b])
                       await docs.save();
                     }}
-                  }
-
+                    
+                    if(req.body.subcategory){
+                      docs.subcategory = [];
+                        if(req.body.subcategory.length == 24){
+                          docs.subcategory= ObjectId(req.body.subcategory)
+                          await docs.save();
+                        }
+                        //console.log(typeof req.body.subcategory);
+                        else{
+                        for(var b=0; b<req.body.subcategory.length;b++){
+                          //console.log(typeof req.body.subcategory[b]);
+                          //console.log(docs.subcategory[b]);
+                          docs.subcategory[b] = ObjectId(req.body.subcategory[b])
+                          //docs.subcategory.push(req.body.subcategory[b])
+                          await docs.save();
+                        }}
+                   }
+                   }
                   var response = {
                     status: 200,
                     message: "User Updated successfully",
@@ -557,26 +570,40 @@ async function UpdateUser(req, res) {
                   return res.status(201).send(response);
                 } else {
                   //console.log(req.body);
-                  if(req.body.category){
-                    //console.log(typeof ObjectId(req.body.category));
-                    //console.log(docs.category);
-                    docs.category=ObjectId(req.body.category);
+                 if(req.body.category){
+                  docs.category = [];
+                  //console.log(req.body.category.length);
+                  if(req.body.category.length == 24){
+                    docs.category= ObjectId(req.body.category)
                     await docs.save();
-                    //console.log(docs.category);
-                    if(req.body.subcategory.length == 24){
-                      console.log("hello");
-                      docs.subcategory= ObjectId(req.body.subcategory)
-                    }
-                    //console.log(typeof req.body.subcategory);
-                    else{
-                    for(var b=0; b<req.body.subcategory.length;b++){
-                      //console.log(typeof req.body.subcategory[b]);
-                      //console.log(docs.subcategory[b]);
-                      docs.subcategory[b] = ObjectId(req.body.subcategory[b])
-                      //docs.subcategory.push(req.body.subcategory[b])
-                      await docs.save();
-                    }}
                   }
+                  //console.log(typeof req.body.subcategory);
+                  else{
+                  for(var b=0; b<req.body.category.length;b++){
+                    //console.log(typeof req.body.subcategory[b]);
+                    //console.log(docs.subcategory[b]);
+                    docs.category[b] = ObjectId(req.body.category[b])
+                    //docs.subcategory.push(req.body.subcategory[b])
+                    await docs.save();
+                  }}
+
+                  if(req.body.subcategory){
+                    docs.subcategory = [];
+                      if(req.body.subcategory.length == 24){
+                        docs.subcategory= ObjectId(req.body.subcategory)
+                        await docs.save();
+                      }
+                      //console.log(typeof req.body.subcategory);
+                      else{
+                      for(var b=0; b<req.body.subcategory.length;b++){
+                        //console.log(typeof req.body.subcategory[b]);
+                        //console.log(docs.subcategory[b]);
+                        docs.subcategory[b] = ObjectId(req.body.subcategory[b])
+                        //docs.subcategory.push(req.body.subcategory[b])
+                        await docs.save();
+                      }}
+                 }
+                 }
                   var response = {
                     status: 200,
                     message: "User Updated successfully",
@@ -645,25 +672,39 @@ async function UpdateUser(req, res) {
                 } else {
 
                   if(req.body.category){
-                    //console.log(typeof ObjectId(req.body.category));
-                    //console.log(docs.category);
-                    docs.category=ObjectId(req.body.category);
-                    await docs.save();
-                    //console.log(docs.category);
-                    if(req.body.subcategory.length == 24){
-                      console.log("hello");
-                      docs.subcategory= ObjectId(req.body.subcategory)
+                    docs.category = [];
+                    //console.log(req.body.category.length);
+                    if(req.body.category.length == 24){
+                      docs.category= ObjectId(req.body.category)
+                      await docs.save();
                     }
                     //console.log(typeof req.body.subcategory);
                     else{
-                    for(var b=0; b<req.body.subcategory.length;b++){
+                    for(var b=0; b<req.body.category.length;b++){
                       //console.log(typeof req.body.subcategory[b]);
                       //console.log(docs.subcategory[b]);
-                      docs.subcategory[b] = ObjectId(req.body.subcategory[b])
+                      docs.category[b] = ObjectId(req.body.category[b])
                       //docs.subcategory.push(req.body.subcategory[b])
                       await docs.save();
                     }}
-                  }
+                    
+                    if(req.body.subcategory){
+                      docs.subcategory = [];
+                        if(req.body.subcategory.length == 24){
+                          docs.subcategory= ObjectId(req.body.subcategory)
+                          await docs.save();
+                        }
+                        //console.log(typeof req.body.subcategory);
+                        else{
+                        for(var b=0; b<req.body.subcategory.length;b++){
+                          //console.log(typeof req.body.subcategory[b]);
+                          //console.log(docs.subcategory[b]);
+                          docs.subcategory[b] = ObjectId(req.body.subcategory[b])
+                          //docs.subcategory.push(req.body.subcategory[b])
+                          await docs.save();
+                        }}
+                   }
+                   }
 
                   var response = {
                     status: 200,
@@ -703,25 +744,40 @@ async function UpdateUser(req, res) {
                 } else {
                   //console.log(req.body);
                   if(req.body.category){
-                    //console.log(typeof ObjectId(req.body.category));
-                    //console.log(docs.category);
-                    docs.category=ObjectId(req.body.category);
-                    await docs.save();
-                    //console.log(docs.category);
-                    if(req.body.subcategory.length == 24){
-                      console.log("hello");
-                      docs.subcategory= ObjectId(req.body.subcategory)
+                    docs.category = [];
+                    //console.log(req.body.category.length);
+                    if(req.body.category.length == 24){
+                      docs.category= ObjectId(req.body.category)
+                      await docs.save();
                     }
                     //console.log(typeof req.body.subcategory);
                     else{
-                    for(var b=0; b<req.body.subcategory.length;b++){
+                    for(var b=0; b<req.body.category.length;b++){
                       //console.log(typeof req.body.subcategory[b]);
                       //console.log(docs.subcategory[b]);
-                      docs.subcategory[b] = ObjectId(req.body.subcategory[b])
+                      docs.category[b] = ObjectId(req.body.category[b])
                       //docs.subcategory.push(req.body.subcategory[b])
                       await docs.save();
                     }}
-                  }
+                    
+                    if(req.body.subcategory){
+                      docs.subcategory = [];
+                        if(req.body.subcategory.length == 24){
+                          docs.subcategory= ObjectId(req.body.subcategory)
+                          await docs.save();
+                        }
+                        //console.log(typeof req.body.subcategory);
+                        else{
+                        for(var b=0; b<req.body.subcategory.length;b++){
+                          //console.log(typeof req.body.subcategory[b]);
+                          //console.log(docs.subcategory[b]);
+                          docs.subcategory[b] = ObjectId(req.body.subcategory[b])
+                          //docs.subcategory.push(req.body.subcategory[b])
+                          await docs.save();
+                        }}
+                   }
+                   }
+                   
                   var response = {
                     status: 200,
                     message: "Supermart Updated successfully",
