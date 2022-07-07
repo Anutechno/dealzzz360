@@ -26,7 +26,7 @@ async function AddStory(req,res){
 
 
         const myCloud =await cloudinary.v2.uploader.upload(req.files[0].path, {
-            folder: "/Story",
+            folder: "/STORY",
         });
         //console.log(myCloud);
             //console.log(myCloud);
