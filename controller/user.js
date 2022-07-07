@@ -129,7 +129,6 @@ var ObjectId = require('mongodb').ObjectId;
 // }
 
 async function Usersignup(req, res) {
-  try{
   const { email, password, role } = req.body;
 
   if (email == "" || password == "" || role == "") 
@@ -219,7 +218,6 @@ async function Usersignup(req, res) {
         });
         myCloud.push(img);
       }
-  
       const userdata = {
         name: req.body.name,
         contact_person: req.body.contact_person,
@@ -245,21 +243,24 @@ async function Usersignup(req, res) {
         },
       };
   
-      const user = await User.create(userdata);
+
+      const user = await User(userdata);
+
+      await user.save();
   
-      const token = validation.generateUserToken(
-        user.email,
-        user._id,
-        user.role,
-        "logged",
-        1
-      );
+      // const token = validation.generateUserToken(
+      //   user.email,
+      //   user._id,
+      //   user.role,
+      //   "logged",
+      //   1
+      // );
 
       var response = {
         status: 200,
         message: `${role} signup successfully`,
         data: user,
-        token:token
+        //token:token
       };
       return res.status(200).send(response);
     } else {
@@ -270,14 +271,7 @@ async function Usersignup(req, res) {
       return res.status(200).send(response);
     }
   }
-  } catch (error) {
-      var response = {
-        errors:error,
-        status: 400,
-        message: "Operation was not successful",
-      };
-    return res.status(400).send(response);
-  }
+ 
 }
 
 async function Usersignin(req, res) {

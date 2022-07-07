@@ -95,8 +95,7 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    story: [
-      {
+    story: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Story",
       },
@@ -106,11 +105,10 @@ const userSchema = new mongoose.Schema(
         ref: "Category",
         ///unique:true
       }],
-    subcategory: [
-      {
+    subcategory: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Subcategory",
-        unique:true
+        //unique:true
       },
     ]
     // resetPasswordToken: String,
