@@ -65,7 +65,7 @@ var ObjectId = require('mongodb').ObjectId;
 //       bio_dob: req.body.bio_dob,
 //       role: req.body.role,
 //       profile_type: req.body.profile_type,
-//       location: req.body.location,
+//       address: req.body.address,
 //       images: {
 //         public_id: myCloud[0].public_id,
 //         url: myCloud[0].secure_url,
@@ -480,7 +480,9 @@ async function UpdateUser(req, res) {
               bio: req.body.bio,
               gender:req.body.gender, 
               about_us: req.body.about_us,
-              location: req.body.location,
+              address: req.body.address,
+              latitude:req.body.latitude,
+              longitude:req.body.longitude,
               images: {
                 public_id: myCloud.public_id,
                 url: myCloud.secure_url,
@@ -555,7 +557,9 @@ async function UpdateUser(req, res) {
               bio: req.body.bio,
               gender:req.body.gender, 
               about_us: req.body.about_us,
-              location: req.body.location,
+              address: req.body.address,
+              latitude:req.body.latitude,
+              longitude:req.body.longitude,
             }
             User.findByIdAndUpdate(
               req.params.id,
@@ -644,7 +648,9 @@ async function UpdateUser(req, res) {
         // bio_dob: req.body.bio_dob,
         // role: req.body.role,
         // profile_type: req.body.profile_type,
-        location: req.body.location,
+        address: req.body.address,
+        latitude:req.body.latitude,
+        longitude:req.body.longitude,
         images: {
           public_id: myCloud.public_id,
           url: myCloud.secure_url,
@@ -728,7 +734,9 @@ async function UpdateUser(req, res) {
               //mob_no: req.body.mob_no,
               //bio: req.body.bio, 
               //about_us: req.body.about_us,
-              location: req.body.location,
+              address: req.body.address,
+              latitude:req.body.latitude,
+              longitude:req.body.longitude,
             }
             User.findByIdAndUpdate(
               req.params.id,

@@ -73,7 +73,13 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-    location: {
+    address: {
+      type: String,
+    },
+    latitude: {
+      type: String,
+    },
+    longitude: {
       type: String,
     },
     about_us:{
