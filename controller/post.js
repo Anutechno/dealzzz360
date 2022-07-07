@@ -393,6 +393,7 @@ async function Likes(req,res){
             else {
                 post.likes.push(user_id)
                 await post.save();
+                
                 var response = {
                     status: 200,
                     message: 'Post has been liked.', 

@@ -5,7 +5,7 @@ const jwt_decode = require("jwt-decode");
 var Sendemail = require("../helper/SendEmail");
 const cloudinary = require("cloudinary");
 var ObjectId = require('mongodb').ObjectId;
-
+var Notification = require("../models/Notification")
 
 // async function Usersignup(req, res) {
 //   // try{
@@ -248,19 +248,18 @@ async function Usersignup(req, res) {
 
       await user.save();
   
-      // const token = validation.generateUserToken(
-      //   user.email,
-      //   user._id,
-      //   user.role,
-      //   "logged",
-      //   1
-      // );
-
+      const token = validation.generateUserToken(
+        user.email,
+        user._id,
+        user.role,
+        "logged",
+        1
+      ); 
       var response = {
         status: 200,
         message: `${role} signup successfully`,
         data: user,
-        //token:token
+        token:token
       };
       return res.status(200).send(response);
     } else {
@@ -944,7 +943,7 @@ async function Following(req, res) {
     if (user) {
       var isfollow = false;
 
-      // console.log(users.following.length);
+      console.log(users.following.length);
       for (var a = 0; a < users.following.length; a++) {
         var following = users.following[a];
 
@@ -977,6 +976,24 @@ async function Following(req, res) {
         users.following.push(user._id);
         await users.save();
 
+        // Add Notification
+        if(users.role == "USER"){
+          var not = {
+            owner:user._id,
+            user:users._id,
+            message: `${users.username} started following you.`,
+            type:"follow",
+          }
+          await Notification.create(not)
+        } else {
+          var not = {
+            owner:user._id,
+            user:users._id,
+            message: `${users.name} started following you.`,
+            type:"follow",
+          }
+          await Notification.create(not)
+        }
         var response = {
           status: 200,
           message: "User has been Followed.",
