@@ -6,6 +6,7 @@ async function GetAllNotification (req,res){
 
         const notification = await Notification.find(req.query).populate({path:"user",select: ['email','username','name','images']})
                                                                .populate({path:"owner",select: ['email','name','username','images']})
+                                                               .populate({path:"post_id",select: ['user','images','type']})
                                                                .sort({createdAt: -1})
         
         if(notification){

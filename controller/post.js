@@ -394,14 +394,14 @@ async function Likes(req,res){
                         // Unlike so Delete Notification
                         const data = await Notification.aggregate([{$match:{
                                                                       $and:[
-                                                                          {'owner':owner._id, 'user':user._id,"post_id":post.id},
+                                                                          {'owner':owner._id, 'user':user._id,"post_id":post._id},
                                                                           {'type':"like"}
                                                                       ]
                                                                       }
                                                                       }])
 
-                        console.log(data);
-                        //await Notification.findByIdAndDelete(data[0]._id,{new:true});
+                        //console.log(data);
+                        await Notification.findByIdAndDelete(data[0]._id,{new:true});
 
                 var response = {
                     status: 200,
@@ -472,8 +472,11 @@ async function Comments(req,res){
         const {comment} = req.body;
 
         const post = await Post.findById(req.params.id);
+        const user = await User.findById(user_id)
 
         if(post){
+            const owner = await User.findById(post.user)
+
             var datas ={
                 comment: comment,
                 user: user_id,
@@ -482,9 +485,28 @@ async function Comments(req,res){
             post.comments.push(datas);
             await post.save();
 
+            if(user.role == "USER"){
+                var not = {
+                  owner:owner._id,
+                  user:user._id,
+                  post_id:post._id,
+                  message: `${user.username} Comments on ur Post.`,
+                  type:"comment",
+                }
+                await Notification.create(not)
+              } else {
+                var not = {
+                  owner:owner._id,
+                  user:user._id,
+                  post_id:post._id,
+                  message: `${user.name} Comments on ur Post.`,
+                  type:"comment",
+                }
+                await Notification.create(not)
+            }
             var response = {
                     status: 200,
-                    message: 'Post Commented', 
+                    message: `Post Commented`, 
                     data: post,
                 };
             return res.status(200).send(response);
@@ -510,11 +532,19 @@ async function Comments(req,res){
 
 async function DeleteComments(req,res){
     try{
+        const data = jwt_decode(req.headers.token);
+        const user_id = data.user_id;
+
         const {comment_id} = req.body;
 
         const post = await Post.findById(req.params.id)
+        const user = await User.findById(user_id)
+
 
         if(post.comments.length>0){
+
+            const owner = await User.findById(post.user)
+
             post.comments.forEach(async(data)=>{
                 // console.log(data._id);
                 if(comment_id == data._id.toString())
@@ -522,6 +552,19 @@ async function DeleteComments(req,res){
                     //post.comments.pull(datas);
                     post.comments.pull(data);
                     await post.save();
+
+                    // Delete Comment so Delete Notification
+                    const datas = await Notification.aggregate([{$match:{
+                        $and:[
+                            {'owner':owner._id, 'user':user._id,"post_id":post._id},
+                            {'type':"comment"}
+                        ]
+                        }
+                        }])
+
+                    //console.log(data);
+                    await Notification.findByIdAndDelete(datas[0]._id,{new:true});
+
                     var response = 
                         {
                               status: 200,
