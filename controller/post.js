@@ -5,6 +5,7 @@ const upload = multer({ dest: './uploads/Post' })
 const jwt_decode = require("jwt-decode");
 var User = require("../models/User");
 const cloudinary = require("cloudinary");
+var Notification = require("../models/Notification")
 
 
 // Using Multer
@@ -148,6 +149,8 @@ async function Addpost(req,res){
                 type:type,
                 images: img,
                 user: user_id,
+                like_count:req.body.like_count,
+                comment_icon:req.body.comment_icon,
             };
             const post = await Post.create(newPostData);
         
@@ -170,6 +173,8 @@ async function Addpost(req,res){
                   url: myCloud.secure_url,
                 },
                 user: user_id,
+                like_count:req.body.like_count,
+                comment_icon:req.body.comment_icon,
             };
             const post = await Post(newPostData);
             await post.save();
@@ -364,9 +369,12 @@ async function Likes(req,res){
         // console.log(data);
 
         const post = await Post.findById(req.params.id);
+        const user = await User.findById(user_id)
+        //console.log(post);
 
         if(post){
-
+            const owner = await User.findById(post.user)
+            //console.log(owner);
             var isLiked = false;
 
             // console.log(post.likes.length);
@@ -383,6 +391,18 @@ async function Likes(req,res){
                 post.likes.pull(user_id)
                 await post.save();
 
+                        // Unlike so Delete Notification
+                        const data = await Notification.aggregate([{$match:{
+                                                                      $and:[
+                                                                          {'owner':owner._id, 'user':user._id,"post_id":post.id},
+                                                                          {'type':"like"}
+                                                                      ]
+                                                                      }
+                                                                      }])
+
+                        console.log(data);
+                        //await Notification.findByIdAndDelete(data[0]._id,{new:true});
+
                 var response = {
                     status: 200,
                     message: 'Post has been Disliked.',
@@ -394,6 +414,26 @@ async function Likes(req,res){
                 post.likes.push(user_id)
                 await post.save();
                 
+                if(user.role == "USER"){
+                    var not = {
+                      owner:owner._id,
+                      user:user._id,
+                      post_id:post._id,
+                      message: `${user.username} Like ur Post.`,
+                      type:"like",
+                    }
+                    await Notification.create(not)
+                  } else {
+                    var not = {
+                      owner:owner._id,
+                      user:user._id,
+                      post_id:post._id,
+                      message: `${user.name} Like ur Post.`,
+                      type:"like",
+                    }
+                    await Notification.create(not)
+                }
+
                 var response = {
                     status: 200,
                     message: 'Post has been liked.', 

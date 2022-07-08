@@ -35,6 +35,12 @@ const postSchema = new mongoose.Schema({
     type:{
         type:String,
     },
+    like_count:{
+        type:String,
+    },
+    comment_icon:{
+        type:String,
+    },
     caption:{
         type:String,
     },
