@@ -128,6 +128,7 @@ var Notification = require("../models/Notification")
 //   // }
 // }
 
+
 async function Usersignup(req, res) {
   const { email, password, role } = req.body;
 
@@ -923,7 +924,6 @@ async function Logout(req, res) {
 }
 
 async function Following(req, res) {
-  try {
     const data = jwt_decode(req.headers.token);
     const user_id = data.user_id;
     // console.log(data);
@@ -940,10 +940,10 @@ async function Following(req, res) {
 
     const users = await User.findById(user_id);
 
-    if (user) {
+    if (users) {
       var isfollow = false;
 
-      console.log(users.following.length);
+      //console.log(users.following.length);
       for (var a = 0; a < users.following.length; a++) {
         var following = users.following[a];
 
@@ -955,6 +955,7 @@ async function Following(req, res) {
       // console.log(isfollow);
 
       if (isfollow) {
+
         // remove into follower list
         user.followers.pull(user_id);
         await user.save();
@@ -962,6 +963,18 @@ async function Following(req, res) {
         users.following.pull(user._id);
         await users.save();
 
+        // unfollowed so Delete Notification
+        const data = await Notification.aggregate([{$match:{
+                                                      $and:[
+                                                          {'owner':user._id, 'user':users._id},
+                                                          {'type':"follow"}
+                                                      ]
+                                                      }
+                                                      }])
+                                                      
+        //console.log(data);
+        await Notification.findByIdAndDelete(data[0]._id,{new:true});
+        
         var response = {
           status: 200,
           message: "User has been UnFollowed",
@@ -1004,18 +1017,11 @@ async function Following(req, res) {
     } else {
       var response = {
         status: 201,
-        message: "No Post Found",
+        message: "No User Found",
       };
       return res.status(201).send(response);
     }
-  } catch (error) {
-    console.log("error", error);
-    response = {
-      status: 201,
-      message: "Operation was not successful",
-    };
-    return res.status(201).send(response);
-  }
+  
 }
 
 async function ResetPassword(req, res) {
