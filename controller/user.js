@@ -914,16 +914,18 @@ async function Logout(req, res) {
         message: "Logged out",
       });
   } catch (error) {
-    console.log("error", error);
-    response = {
-      status: 201,
+    var response = {
+      errors: error,
+      status: 400,
       message: "Operation was not successful",
     };
-    return res.status(201).send(response);
+
+    return res.status(400).send(response);
   }
 }
 
 async function Following(req, res) {
+  try{
     const data = jwt_decode(req.headers.token);
     const user_id = data.user_id;
     // console.log(data);
@@ -1022,6 +1024,15 @@ async function Following(req, res) {
       return res.status(201).send(response);
     }
   
+} catch (error) {
+  var response = {
+    errors: error,
+    status: 400,
+    message: "Operation was not successful",
+  };
+
+  return res.status(400).send(response);
+}
 }
 
 async function ResetPassword(req, res) {
@@ -1079,12 +1090,69 @@ async function ResetPassword(req, res) {
       return res.status(200).send(response);
     }
   } catch (error) {
-    console.log("error", error);
-    response = {
-      status: 201,
+    var response = {
+      errors: error,
+      status: 400,
       message: "Operation was not successful",
     };
-    return res.status(201).send(response);
+
+    return res.status(400).send(response);
+  }
+}
+
+async function UpdateBanner(req, res) {
+  try{
+    const data = jwt_decode(req.headers.token);
+    const user_id = data.user_id;
+
+    const user = await User.findById(user_id)
+    if(user.role == "SUPERMART"){
+      //console.log(req.files);
+
+      const myCloud = await cloudinary.v2.uploader.upload(req.files[0].path, {
+        folder: "/USERS",
+      });
+      const datas = {
+            cimages: {
+                public_id: myCloud.public_id,
+                url: myCloud.secure_url,
+            },
+      }
+      User.findByIdAndUpdate(user_id,
+        { $set: datas },
+        { new: true },
+        async(err, docs) => {
+          if (err) {
+            var response = {
+              status: 201,
+              message: err,
+            };
+            return res.status(201).send(response);
+          } else {
+            var response = {
+              status: 200,
+              message: "Banner Updated successfully",
+              data: docs,
+            };
+            return res.status(200).send(response);
+          }
+        }
+      )
+    } else {
+      var response = {
+        status: 201,
+        message: "Not Authorized to change banner image",
+      };
+      return res.status(201).send(response);
+    }
+  } catch (error) {
+    var response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
   }
 }
 
@@ -1099,6 +1167,7 @@ module.exports = {
   Following,
   ResetPassword,
   UpdatePassword,
+  UpdateBanner,
 };
 
 

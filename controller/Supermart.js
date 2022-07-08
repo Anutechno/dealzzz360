@@ -6,7 +6,7 @@ var Sendemail = require("../helper/SendEmail");
 const cloudinary = require("cloudinary");
 
 async function Usersignup(req, res) {
-  // try{
+  try{
   const { email, username, password, role } = req.body;
 
   //console.log(req.files)
@@ -116,15 +116,14 @@ async function Usersignup(req, res) {
     };
     return res.status(200).send(response);
   }
-  // } catch (error) {
-  //     var response = {
-  //       errors:error,
-  //       status: 400,
-  //       message: "Operation was not successful",
-  //     };
-
-  //     return res.status(400).send(response);
-  // }
+  } catch (error) {
+      var response = {
+        errors:error,
+        status: 400,
+        message: "Operation was not successful",
+      };
+    return res.status(400).send(response);
+  }
 }
 
 async function Usersignin(req, res) {
@@ -443,12 +442,13 @@ async function Logout(req, res) {
         message: "Logged out",
       });
   } catch (error) {
-    console.log("error", error);
-    response = {
-      status: 201,
+    var response = {
+      errors: error,
+      status: 400,
       message: "Operation was not successful",
     };
-    return res.status(201).send(response);
+
+    return res.status(400).send(response);
   }
 }
 
@@ -521,12 +521,13 @@ async function Following(req, res) {
       return res.status(201).send(response);
     }
   } catch (error) {
-    console.log("error", error);
-    response = {
-      status: 201,
+    var response = {
+      errors: error,
+      status: 400,
       message: "Operation was not successful",
     };
-    return res.status(201).send(response);
+
+    return res.status(400).send(response);
   }
 }
 
@@ -585,12 +586,13 @@ async function ResetPassword(req, res) {
       return res.status(200).send(response);
     }
   } catch (error) {
-    console.log("error", error);
-    response = {
-      status: 201,
+    var response = {
+      errors: error,
+      status: 400,
       message: "Operation was not successful",
     };
-    return res.status(201).send(response);
+
+    return res.status(400).send(response);
   }
 }
 

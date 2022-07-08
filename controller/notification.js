@@ -35,6 +35,7 @@ async function GetAllNotification (req,res){
     }
 }
 
+
 module.exports = {
     GetAllNotification,
 }

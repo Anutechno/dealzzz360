@@ -1,6 +1,7 @@
 var Chat = require("../models/Chat");
 var User = require("../models/User");
 const jwt_decode = require("jwt-decode");
+var ObjectId = require('mongodb').ObjectId;
 
 
 async function SendMessage(req,res){
@@ -17,10 +18,11 @@ async function SendMessage(req,res){
         const {message} = req.body;
 
         const user = await User.findById(req.params.id);
+        
         if(!user){
             var response = {
                 status: 201,
-                message: "Sender User Not Found",
+                message: "Receiver User Not Found",
               };
             return res.status(201).send(response);
         }
@@ -65,7 +67,7 @@ async function SendMessage(req,res){
 
 
 async function GetAllChat(req,res){
-        
+        try{
 
         const chat = await Chat.find(req.query).populate({path:"sender",select: ['username', 'email']})
                                                .populate({path:"receiver",select: ['username', 'email']})
@@ -86,22 +88,42 @@ async function GetAllChat(req,res){
         }
 
     
+} catch (error) {
+    var response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
 }
 
 
 
 async function GetConversation(req,res){
-
-        const chat = await Chat.find(req.query).populate({path:"sender",select: ['username', 'email']})
-                                               .populate({path:"receiver",select: ['username', 'email']})
-
+    try{
+        //const chat = await Chat.find(req.query).populate({path:"sender",select: ['username', 'email']})
+        //                                      .populate({path:"receiver",select: ['username', 'email']})
         
+        //const {sender,receiver}= req.body;
+        const {sender,receiver}= req.query;
+
+        const chat = await Chat.aggregate([
+                            {$match:{
+                                $or:[
+                                    {'sender':ObjectId(sender), 'receiver':ObjectId(receiver)},
+                                    {'receiver':ObjectId(sender), 'sender':ObjectId(receiver)}
+                                ]
+                                }
+                                }])
+                            .sort({createdAt: -1})
+            
         if(chat){
             chat.forEach((data)=>{
-                //console.log(data.message);
-                //console.log(data.type);
+                // console.log(data.message);
+                // console.log(data.type);
                 data.type = "seen"
-                data.save();
             })
             var response = {
                 status: 200,
@@ -118,6 +140,15 @@ async function GetConversation(req,res){
         }
 
    
+} catch (error) {
+    var response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
 }
 
 
@@ -128,62 +159,67 @@ async function GetHistory(req,res){
         const users = [];
         const lastm = [];
 
-        const chat = await Chat.find({})
+        const chat = await Chat.find({}).populate({path:"sender",select: ['username', 'email']})
+                                        .populate({path:"receiver",select: ['username', 'email']})
+                                        .sort({createdAt: -1})
+                                        .distinct("sender")
+                                        .exec()
         //console.log(chat.length);
-        for(var a=0;a<chat.length;a++){
-            //console.log("a",a);
-            let counts = 0;
-            //console.log(chat[a].receiver[0]);
-            if(cht.length>0){
-                for(var j=0;j<cht.length;j++){
-                    // console.log("j",j);
-                    // console.log(cht[j]);
-                    // console.log(chat[a].receiver[0]);
-                    if(chat[a].receiver[0].toString() != cht[j].toString()){
-                        // console.log("not match");
+        res.send(chat);
+        // for(var a=0;a<chat.length;a++){
+        //     //console.log("a",a);
+        //     let counts = 0;
+        //     //console.log(chat[a].receiver[0]);
+        //     if(cht.length>0){
+        //         for(var j=0;j<cht.length;j++){
+        //             // console.log("j",j);
+        //             // console.log(cht[j]);
+        //             // console.log(chat[a].receiver[0]);
+        //             if(chat[a].receiver[0].toString() != cht[j].toString()){
+        //                 // console.log("not match");
                         
-                        counts = 1
-                    } else{
-                        console.log(chat[a].message);
-                        counts = 0;
-                        break;
-                    }
-                }
-                // console.log("counts",counts);
-                if(counts){
-                    cht.push(chat[a].receiver[0])
-                    // console.log("data",cht);
-                }
-            // console.log("length",cht.length);
-            } else {
-                cht.push(chat[a].receiver[0])
-                // console.log("hello",cht);
-            }
-        }
+        //                 counts = 1
+        //             } else{
+        //                 console.log(chat[a].message);
+        //                 counts = 0;
+        //                 break;
+        //             }
+        //         }
+        //         // console.log("counts",counts);
+        //         if(counts){
+        //             cht.push(chat[a].receiver[0])
+        //             // console.log("data",cht);
+        //         }
+        //     // console.log("length",cht.length);
+        //     } else {
+        //         cht.push(chat[a].receiver[0])
+        //         // console.log("hello",cht);
+        //     }
+        // }
 
-        let count = 0;
-        if(cht.length>0){
-            cht.forEach(async(data)=>{
-                const user = await User.findById(data);
-                users.push(user)
-                count++;
-                if(count == cht.length){
-                    var response = {
-                        status: 200,
-                        message: 'successfull',
-                        data: users,
-                      };
-                    return res.status(200).send(response);
-                }
-            })
-        }
-        else{
-            var response = {
-                status: 201,
-                message: "No Conversation Found",
-              };
-            return res.status(201).send(response);
-        }
+        // let count = 0;
+        // if(cht.length>0){
+        //     cht.forEach(async(data)=>{
+        //         const user = await User.findById(data);
+        //         users.push(user)
+        //         count++;
+        //         if(count == cht.length){
+        //             var response = {
+        //                 status: 200,
+        //                 message: 'successfull',
+        //                 data: users,
+        //               };
+        //             return res.status(200).send(response);
+        //         }
+        //     })
+        // }
+        // else{
+        //     var response = {
+        //         status: 201,
+        //         message: "No Conversation Found",
+        //       };
+        //     return res.status(201).send(response);
+        // }
 
     } catch (error) {
         response = {

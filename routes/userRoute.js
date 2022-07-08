@@ -13,6 +13,7 @@ const {
     Following,
     ResetPassword,
     UpdatePassword,
+    UpdateBanner,
     } = require("../controller/user");
 
 
@@ -62,6 +63,7 @@ router.get("/getall",verifyToken,GetAllUser);
 router.get("/get/:id",verifyToken,GetUser);
 router.delete("/delete/:id",verifyToken,DeleteUser);
 router.patch("/update/:id",verifyToken,upload.array("images",10),UpdateUser);
+router.patch("/updatebanner",verifyToken,upload.array("images",10),UpdateBanner);
 
 // follow n unfollow user
 router.post("/follow/:followId",verifyToken,Following);
