@@ -1173,6 +1173,7 @@ async function Search(req, res) {
   try{
     let search = req.params.search.replace(/[^\w\s*]/gi, '')
 
+    console.log(search);
     if(search == 0 || search == null){
         var response = {
           status: 201,
@@ -1231,7 +1232,6 @@ async function Search(req, res) {
   return res.status(400).send(response);
 }
 }
-
 
 module.exports = {
   Usersignup,

@@ -18,7 +18,22 @@ const postSchema = new mongoose.Schema({
           },
         },
       ],
-
+    caption:{
+        type:String,
+    },
+    header:{
+        type:String,
+    },
+    online_available:{
+        type:String,
+    },
+    brand:{
+        type:String,
+    },
+    subcategory:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subcategory",
+    }],
     // Multer
     // filename:{
     //     type : String,
@@ -31,7 +46,6 @@ const postSchema = new mongoose.Schema({
     //     type : String,
     //     //required: true
     // },
-
     type:{
         type:String,
     },
@@ -39,9 +53,6 @@ const postSchema = new mongoose.Schema({
         type:String,
     },
     comment_icon:{
-        type:String,
-    },
-    caption:{
         type:String,
     },
     createdAt:{

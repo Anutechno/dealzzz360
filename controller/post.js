@@ -121,7 +121,7 @@ async function Addpost(req,res){
             return res.status(201).send(response);
         }
 
-        const {type, caption} = req.body;
+        const {type, caption, header, brand, online_available} = req.body;
 
         //console.log(req.files.length);
 
@@ -144,14 +144,33 @@ async function Addpost(req,res){
                 img.push(datas);
             }
 
+            let sub = [];
+            if(req.body.subcategory){
+
+                //console.log(typeof req.body.subcategory);
+                  if(req.body.subcategory.length == 24){
+                    sub.push(req.body.subcategory)
+                  }
+                  else{
+                       for(var b=0; b<req.body.subcategory.length;b++){
+                            sub.push(req.body.subcategory[b])
+                       }
+                  }
+            }
+
             const newPostData = {
+                header:header,
                 caption: caption,
+                brand:brand,
+                online_available:online_available,
                 type:type,
                 images: img,
                 user: user_id,
                 like_count:req.body.like_count,
                 comment_icon:req.body.comment_icon,
+                subcategory:sub
             };
+
             const post = await Post.create(newPostData);
         
             var response = {
@@ -160,13 +179,31 @@ async function Addpost(req,res){
                 message: "Post Added Successfully",
             };
             return res.status(200).send(newPostData);
-        }else{
+
+        }
+        else {
         const myCloud =await cloudinary.v2.uploader.upload(req.files[0].path,
             {folder: "/POSTS"});
 
-            // console.log(myCloud);
+            let sub = [];
+            if(req.body.subcategory){
+
+                //console.log(typeof req.body.subcategory);
+                  if(req.body.subcategory.length == 24){
+                    sub.push(req.body.subcategory)
+                  }
+                  else{
+                       for(var b=0; b<req.body.subcategory.length;b++){
+                            sub.push(req.body.subcategory[b])
+                       }
+                  }
+            }
+
             const newPostData = {
+                header:header,
                 caption: caption,
+                brand:brand,
+                online_available:online_available,
                 type:type,
                 images: {
                   public_id: myCloud.public_id,
@@ -175,8 +212,11 @@ async function Addpost(req,res){
                 user: user_id,
                 like_count:req.body.like_count,
                 comment_icon:req.body.comment_icon,
+                subcategory:sub
             };
+
             const post = await Post(newPostData);
+
             await post.save();
 
             var response = {
@@ -204,6 +244,7 @@ async function GetAllPost(req,res){
         const post = await Post.find(req.query).populate({path:"likes",select: ['email','username']})
                                                .populate({path:"comments.user",select: ['email','username']})
                                                .populate({path:"user",select: ['email','username','images']})
+                                               .populate({path:"subcategory",select: ['name','image']})
                                                .sort({createdAt: -1})
 
         if(post){
@@ -237,6 +278,8 @@ async function GetPost(req,res){
         const post = await Post.findById(req.params.id).populate({path:"likes",select: ['email','username']})
                                                        .populate({path:"comments.user",select: ['email','username']})
                                                        .populate({path:"user",select: ['email','username','images']})
+                                                       .populate({path:"subcategory",select: ['name','image']})
+
         if(post){
             var response = {
                 status: 200,
