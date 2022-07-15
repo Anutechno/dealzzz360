@@ -14,6 +14,7 @@ const {
     ResetPassword,
     UpdatePassword,
     UpdateBanner,
+    Search,
     } = require("../controller/user");
 
 
@@ -72,5 +73,8 @@ router.post("/follow/:followId",verifyToken,Following);
 router.post("/resetpassword",ResetPassword);
 router.post("/updatePassword/:id",verifyToken,UpdatePassword);
 
+// global search
+//router.post("/search",verifyToken,Search);
+router.get("/search/:search",Search);
 
 module.exports = router

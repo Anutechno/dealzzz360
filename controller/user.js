@@ -6,6 +6,8 @@ var Sendemail = require("../helper/SendEmail");
 const cloudinary = require("cloudinary");
 var ObjectId = require('mongodb').ObjectId;
 var Notification = require("../models/Notification")
+var Post  = require("../models/Post");
+
 
 // async function Usersignup(req, res) {
 //   // try{
@@ -274,6 +276,7 @@ async function Usersignup(req, res) {
  
 }
 
+
 async function Usersignin(req, res) {
   try {
     const { email, username, password } = req.body;
@@ -341,6 +344,7 @@ async function Usersignin(req, res) {
   }
 }
 
+
 async function GetAllUser(req, res) {
   try {
     const user = await User.find(req.query)
@@ -377,6 +381,7 @@ async function GetAllUser(req, res) {
   }
 }
 
+
 async function GetUser(req, res) {
   try {
     const user = await User.findById(req.params.id).populate({ path: "followers", select: ["email", "username"] })
@@ -409,6 +414,7 @@ async function GetUser(req, res) {
     return res.status(400).send(response);
   }
 }
+
 
 async function DeleteUser(req, res) {
   try {
@@ -456,6 +462,7 @@ async function DeleteUser(req, res) {
     return res.status(400).send(response);
   }
 }
+
 
 async function UpdateUser(req, res) {
   try{
@@ -823,6 +830,7 @@ async function UpdateUser(req, res) {
   }
 }
 
+
 async function UpdatePassword(req, res) {
   try {
     if (req.params.id != "") {
@@ -899,6 +907,7 @@ async function UpdatePassword(req, res) {
   }
 }
 
+
 async function Logout(req, res) {
   try {
     // res.clearCookie('refreshToken')
@@ -923,6 +932,7 @@ async function Logout(req, res) {
     return res.status(400).send(response);
   }
 }
+
 
 async function Following(req, res) {
   try{
@@ -1035,6 +1045,7 @@ async function Following(req, res) {
 }
 }
 
+
 async function ResetPassword(req, res) {
   try {
     const { email, username } = req.body;
@@ -1100,6 +1111,7 @@ async function ResetPassword(req, res) {
   }
 }
 
+
 async function UpdateBanner(req, res) {
   try{
     const data = jwt_decode(req.headers.token);
@@ -1156,6 +1168,71 @@ async function UpdateBanner(req, res) {
   }
 }
 
+
+async function Search(req, res) {
+  try{
+    let search = req.params.search.replace(/[^\w\s*]/gi, '')
+
+    if(search == 0 || search == null){
+        var response = {
+          status: 201,
+          message: "can't search empty field",
+        };
+        return res.status(201).send(response);
+    }
+    const data = await User.aggregate([
+                                {$match:{
+                                    $or:[
+                                      { "first_name" : { $regex: `${search}`, $options: 'i' }},
+                                      {"name" : { $regex: `${search}`, $options: 'i' }},
+                                      {"last_name" : { $regex: `${search}`, $options: 'i' }},
+                                      {"email" : { $regex: `${search}`, $options: 'i' }},
+                                      {"contact_person" : { $regex: `${search}`, $options: 'i' }}
+                                    ]
+                                    }
+                                    }])
+
+    
+    const post = await Post.aggregate([
+                                {$match:{
+                                    $or:[
+                                      { "type" : { $regex: `${search}`, $options: 'i' }},
+                                      {"caption" : { $regex: `${search}`, $options: 'i' }},
+                                      //{"last_name" : { $regex: `${search}`, $options: 'i' }},
+                                      //{"email" : { $regex: `${search}`, $options: 'i' }},
+                                      //{"contact_person" : { $regex: `${search}`, $options: 'i' }}
+                                    ]
+                                    }
+                                    }])
+                                //.sort({createdAt: -1})
+    // console.log(data.length);
+    if (data.length>0 || post.length>0) {
+      var response = {
+        status: 200,
+        message: "successfull",
+        users: data,
+        posts:post
+      };
+      return res.status(200).send(response);
+    } else {
+      var response = {
+        status: 201,
+        message: "No Data Found",
+      };
+      return res.status(201).send(response);
+    }
+} catch (error) {
+  var response = {
+    errors: error,
+    status: 400,
+    message: "Operation was not successful",
+  };
+
+  return res.status(400).send(response);
+}
+}
+
+
 module.exports = {
   Usersignup,
   Usersignin,
@@ -1168,6 +1245,7 @@ module.exports = {
   ResetPassword,
   UpdatePassword,
   UpdateBanner,
+  Search,
 };
 
 
