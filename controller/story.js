@@ -98,14 +98,39 @@ async function GetAllStory(req,res){
 
 async function GetStory(req,res){
     try{
+        const data = jwt_decode(req.headers.token);
+        const user_id = data.user_id;
+        //console.log(user_id);
 
         const story = await Story.findById(req.params.id).populate({path:"user",select: ['email','username','images']});
         
+        const user = await User.findById(story.user._id);
+
+        //console.log(user._id.toString());
+        if(user_id != user._id.toString()){
+            if(story.seen_by.length < 1){
+              story.seen_by.push(user_id)
+              story.save();
+            } else {
+            var count=0;
+            story.seen_by.forEach((data)=>{
+              //console.log(user_id);
+              //console.log(data.toString());
+                  if(user_id == data.toString()){
+                    count =1;
+                  }
+            })
+            if(count ==0){
+              story.seen_by.push(user_id)
+              story.save();
+            }
+          }
+        }
         if(story){
             var response = {
                 status: 200,
-                data: story,
                 message: 'successfull',
+                data: story,
               };
               return res.status(200).send(response);
         } else{

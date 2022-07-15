@@ -29,7 +29,11 @@ const StorySchema = new mongoose.Schema({
     timestamp: {
         type: Date,
         default: new Date(),
-      },
+    },
+    seen_by:[{
+      type: mongoose.Schema.Types.ObjectId,
+      ref:"User"
+    }]
 },
 {
   timestamps:true,
