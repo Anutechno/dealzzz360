@@ -346,7 +346,7 @@ async function GetAllUser(req, res) {
     const user = await User.find(req.query)
       .populate({ path: "followers", select: ["email", "username"] })
       .populate({ path: "following", select: ["email", "username"] })
-      .populate({ path: "story", select: ["caption", "images"] })
+      .populate({ path: "story", select: ["caption", "images",'seen_by'] })
       .populate({ path: "category",select: ["name", "image"] })
       .populate({ path: "subcategory",select: ["name", "image"] });
 
@@ -381,7 +381,7 @@ async function GetUser(req, res) {
   try {
     const user = await User.findById(req.params.id).populate({ path: "followers", select: ["email", "username"] })
                                                    .populate({ path: "following", select: ["email", "username"] })
-                                                   .populate({ path: "story", select: ["caption", "images"] })
+                                                   .populate({ path: "story", select: ["caption", "images",'seen_by'] })
                                                    .populate({ path: "category",select: ["name", "image"] })
                                                    .populate({ path: "subcategory",select: ["name", "image"] });
 
