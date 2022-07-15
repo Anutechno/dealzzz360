@@ -1171,7 +1171,8 @@ async function UpdateBanner(req, res) {
 
 async function Search(req, res) {
   try{
-    let search = req.params.search.replace(/[^\w\s*]/gi, '')
+
+    let search = req.body.search.replace(/[^\w\s*]/gi, '')
 
     console.log(search);
     if(search == 0 || search == null){

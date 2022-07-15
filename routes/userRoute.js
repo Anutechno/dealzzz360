@@ -75,6 +75,6 @@ router.post("/updatePassword/:id",verifyToken,UpdatePassword);
 
 // global search
 //router.post("/search",verifyToken,Search);
-router.get("/search/:search",Search);
+router.post("/search",Search);
 
 module.exports = router

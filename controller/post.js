@@ -354,13 +354,16 @@ async function UpdatePost(req,res){
     try{
         if(req.params.id != ""){
 
-            const {type, caption} = req.body;
+            const {header, caption,online_available,brand} = req.body;
 
             const post = await Post.findById(req.params.id)
         
             if(post){
                 const data = {
-                    caption: req.body.caption,
+                    caption:caption,
+                    header:header,
+                    online_available:online_available,
+                    brand:brand
                 }
                 Post.findByIdAndUpdate(req.params.id,{$set:data},{new:true},(err, docs)=> {
                     if (err) {
