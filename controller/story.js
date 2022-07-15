@@ -67,6 +67,7 @@ async function GetAllStory(req,res){
     try{
 
         const story = await Story.find(req.query).populate({path:"user",select: ['email','username','images']})
+                                                 .populate({path:"seen_by",select: ['email','username','images']})
                                                  .sort({createdAt: -1})
         
         if(story){
@@ -102,8 +103,9 @@ async function GetStory(req,res){
         const user_id = data.user_id;
         //console.log(user_id);
 
-        const story = await Story.findById(req.params.id).populate({path:"user",select: ['email','username','images']});
-        
+        const story = await Story.findById(req.params.id).populate({path:"user",select: ['email','username','images']})
+                                                         .populate({path:"seen_by",select: ['email','username','images']});
+
         const user = await User.findById(story.user._id);
 
         //console.log(user._id.toString());
@@ -116,10 +118,11 @@ async function GetStory(req,res){
             story.seen_by.forEach((data)=>{
               //console.log(user_id);
               //console.log(data.toString());
-                  if(user_id == data.toString()){
+                  if(user_id == data._id.toString()){
                     count =1;
                   }
             })
+            console.log(count);
             if(count ==0){
               story.seen_by.push(user_id)
               story.save();
