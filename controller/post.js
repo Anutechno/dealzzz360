@@ -243,7 +243,7 @@ async function GetAllPost(req,res){
     try{
         const post = await Post.find(req.query).populate({path:"likes",select: ['email','username']})
                                                .populate({path:"comments.user",select: ['email','username']})
-                                               .populate({path:"user",select: ['email','username','images']})
+                                               .populate({path:"user",select: ['email','username','images','role']})
                                                .populate({path:"subcategory",select: ['name','image']})
                                                .sort({createdAt: -1})
 
