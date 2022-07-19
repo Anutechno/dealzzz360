@@ -1198,11 +1198,11 @@ async function Search(req, res) {
     const post = await Post.aggregate([
                                 {$match:{
                                     $or:[
-                                      { "type" : { $regex: `${search}`, $options: 'i' }},
+                                      {"type" : { $regex: `${search}`, $options: 'i' }},
                                       {"caption" : { $regex: `${search}`, $options: 'i' }},
-                                      //{"last_name" : { $regex: `${search}`, $options: 'i' }},
-                                      //{"email" : { $regex: `${search}`, $options: 'i' }},
-                                      //{"contact_person" : { $regex: `${search}`, $options: 'i' }}
+                                      {"header" : { $regex: `${search}`, $options: 'i' }},
+                                      {"brand" : { $regex: `${search}`, $options: 'i' }},
+                                      //{"subcategory" : { $regex: `${search}`, $options: 'i' }}
                                     ]
                                     }
                                     }])

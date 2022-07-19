@@ -92,20 +92,6 @@ function errHandler(err, req, res, next) {
 app.use(errHandler);
 
 
-
-// // const storage = multer.diskStorage({
-// //   destination: './upload/images',
-// //   filename: (req, file, cb) => {
-// //       return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
-// //   }
-// // })
-
-// // const upload = multer({
-// //   storage: storage,
-// //   limits: {
-// //       fileSize: 1000000
-// //   }
-// // })
 // // //app.use('/profile', express.static('upload/images'));
 // // app.post("/upload", upload.single('profile'), (req, res) => {
 
