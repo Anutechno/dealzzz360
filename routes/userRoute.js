@@ -15,6 +15,8 @@ const {
     UpdatePassword,
     UpdateBanner,
     Search,
+    Invite,
+    BusinessUser,
     } = require("../controller/user");
 
 
@@ -62,11 +64,15 @@ router.post("/logout",Logout);
 
 router.get("/getall",verifyToken,GetAllUser);
 router.get("/get/:id",verifyToken,GetUser);
+router.get("/invite/:id",verifyToken,Invite);
 router.delete("/delete/:id",verifyToken,DeleteUser);
 router.patch("/update/:id",verifyToken,upload.array("images",10),UpdateUser);
 router.patch("/updatebanner",verifyToken,upload.array("images",10),UpdateBanner);
 
-// follow n unfollow user
+ 
+router.post("/business",BusinessUser);
+
+// follow n unfollow BusinessUser
 router.post("/follow/:followId",verifyToken,Following);
 
 // Reset Password
