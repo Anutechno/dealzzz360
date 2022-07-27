@@ -1,12 +1,11 @@
 var Post = require("../models/Post");
-const fs = require('fs');
-const multer  = require('multer')
-const upload = multer({ dest: './uploads/Post' })
+const fs = require("fs");
+const multer = require("multer");
+const upload = multer({ dest: "./uploads/Post" });
 const jwt_decode = require("jwt-decode");
 var User = require("../models/User");
 const cloudinary = require("cloudinary");
-var Notification = require("../models/Notification")
-
+var Notification = require("../models/Notification");
 
 // Using Multer
 // async function Addpost(req,res){
@@ -14,7 +13,7 @@ var Notification = require("../models/Notification")
 //         const data = jwt_decode(req.headers.token);
 //         const user_id = data.user_id;
 //         // console.log(data);
-        
+
 //         let user = await User.findById(user_id)
 //         // const file = [];
 //         const { type, caption} = req.body;
@@ -50,7 +49,7 @@ var Notification = require("../models/Notification")
 //                 };
 //                 return res.status(201).send(response);
 //             }
-    
+
 //             let postUpload = new Post(data);
 //             // mconsole.log(postUpload);
 //             return await postUpload
@@ -81,7 +80,7 @@ var Notification = require("../models/Notification")
 //                         }
 //                     })
 //         });
-    
+
 //         Promise.all(result)
 //             .then( msg => {
 //                 //res.json(msg);
@@ -90,7 +89,7 @@ var Notification = require("../models/Notification")
 //             .catch(err =>{
 //                 res.json(err);
 //             })
-        
+
 // } catch (error) {
 //     var response = {
 //       errors:error,
@@ -103,641 +102,742 @@ var Notification = require("../models/Notification")
 
 // }
 
-
-
 // using Cloudinary
-async function Addpost(req,res){
-    try{
-        const data = jwt_decode(req.headers.token);
-        const user_id = data.user_id;
-        // console.log(data);
-        
-        let user = await User.findById(user_id)
-        if(!user){
-            var response = {
-                status: 201,
-                message: "No User Found Login first",
-              };
-            return res.status(201).send(response);
+async function Addpost(req, res) {
+  try {
+    const data = jwt_decode(req.headers.token);
+    const user_id = data.user_id;
+    // console.log(data);
+
+    let user = await User.findById(user_id);
+    if (!user) {
+      var response = {
+        status: 201,
+        message: "No User Found Login first",
+      };
+      return res.status(201).send(response);
+    }
+
+    const { type, caption, header, brand, online_available } = req.body;
+
+    //console.log(req.files.length);
+
+    //const myCloud =await cloudinary.v2.uploader.upload(req.files[0].path, {
+
+    // Video file
+    // const myCloud =await cloudinary.v2.uploader.upload_large(req.files[0].path, {
+    //     resource_type: "auto"});
+    if (req.files.length > 1) {
+      var img = [];
+      for (var b = 0; b < req.files.length; b++) {
+        //console.log(req.files[b]);
+        const myCloud = await cloudinary.v2.uploader.upload(req.files[b].path, {
+          folder: "/POSTS",
+        });
+
+        var datas = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
+        img.push(datas);
+      }
+
+      let sub = [];
+      if (req.body.subcategory) {
+        //console.log(typeof req.body.subcategory);
+        if (req.body.subcategory.length == 24) {
+          sub.push(req.body.subcategory);
+        } else {
+          for (var b = 0; b < req.body.subcategory.length; b++) {
+            sub.push(req.body.subcategory[b]);
+          }
         }
+      }
 
-        const {type, caption, header, brand, online_available} = req.body;
+      const newPostData = {
+        header: header,
+        caption: caption,
+        brand: brand,
+        online_available: online_available,
+        type: type,
+        images: img,
+        user: user_id,
+        like_count: req.body.like_count,
+        comment_icon: req.body.comment_icon,
+        subcategory: sub,
+      };
 
-        //console.log(req.files.length);
+      const post = await Post.create(newPostData);
 
-        //const myCloud =await cloudinary.v2.uploader.upload(req.files[0].path, {
+      var response = {
+        status: 200,
+        data: post,
+        message: "Post Added Successfully",
+      };
+      return res.status(200).send(newPostData);
+    } else {
+      const myCloud = await cloudinary.v2.uploader.upload(req.files[0].path, {
+        folder: "/POSTS",
+      });
 
-        // Video file
-        // const myCloud =await cloudinary.v2.uploader.upload_large(req.files[0].path, {
-        //     resource_type: "auto"});
-        if(req.files.length>1){
-            var img = [];
-            for(var b=0;b<req.files.length;b++){
-                //console.log(req.files[b]);
-                const myCloud =await cloudinary.v2.uploader.upload(req.files[b].path,
-                    {folder: "/POSTS"});
-
-                var datas = {
-                    public_id: myCloud.public_id,
-                    url: myCloud.secure_url,
-                }
-                img.push(datas);
-            }
-
-            let sub = [];
-            if(req.body.subcategory){
-
-                //console.log(typeof req.body.subcategory);
-                  if(req.body.subcategory.length == 24){
-                    sub.push(req.body.subcategory)
-                  }
-                  else{
-                       for(var b=0; b<req.body.subcategory.length;b++){
-                            sub.push(req.body.subcategory[b])
-                       }
-                  }
-            }
-
-            const newPostData = {
-                header:header,
-                caption: caption,
-                brand:brand,
-                online_available:online_available,
-                type:type,
-                images: img,
-                user: user_id,
-                like_count:req.body.like_count,
-                comment_icon:req.body.comment_icon,
-                subcategory:sub
-            };
-
-            const post = await Post.create(newPostData);
-        
-            var response = {
-                status: 200,
-                data: post,
-                message: "Post Added Successfully",
-            };
-            return res.status(200).send(newPostData);
-
+      let sub = [];
+      if (req.body.subcategory) {
+        //console.log(typeof req.body.subcategory);
+        if (req.body.subcategory.length == 24) {
+          sub.push(req.body.subcategory);
+        } else {
+          for (var b = 0; b < req.body.subcategory.length; b++) {
+            sub.push(req.body.subcategory[b]);
+          }
         }
-        else {
-        const myCloud =await cloudinary.v2.uploader.upload(req.files[0].path,
-            {folder: "/POSTS"});
+      }
 
-            let sub = [];
-            if(req.body.subcategory){
+      const newPostData = {
+        header: header,
+        caption: caption,
+        brand: brand,
+        online_available: online_available,
+        type: type,
+        images: {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        },
+        user: user_id,
+        like_count: req.body.like_count,
+        comment_icon: req.body.comment_icon,
+        subcategory: sub,
+      };
 
-                //console.log(typeof req.body.subcategory);
-                  if(req.body.subcategory.length == 24){
-                    sub.push(req.body.subcategory)
-                  }
-                  else{
-                       for(var b=0; b<req.body.subcategory.length;b++){
-                            sub.push(req.body.subcategory[b])
-                       }
-                  }
-            }
+      const post = await Post(newPostData);
 
-            const newPostData = {
-                header:header,
-                caption: caption,
-                brand:brand,
-                online_available:online_available,
-                type:type,
-                images: {
-                  public_id: myCloud.public_id,
-                  url: myCloud.secure_url,
-                },
-                user: user_id,
-                like_count:req.body.like_count,
-                comment_icon:req.body.comment_icon,
-                subcategory:sub
-            };
+      await post.save();
 
-            const post = await Post(newPostData);
-
-            await post.save();
-
-            var response = {
-                status: 200,
-                data: post,
-                message: "Post Added Successfully",
-            };
-            return res.status(200).send(newPostData);
-        }
-} catch (error) {
+      var response = {
+        status: 200,
+        data: post,
+        message: "Post Added Successfully",
+      };
+      return res.status(200).send(newPostData);
+    }
+  } catch (error) {
     var response = {
-      errors:error,
+      errors: error,
       status: 400,
       message: "Operation was not successful",
     };
 
     return res.status(400).send(response);
+  }
 }
 
-}
+async function GetAllPost(req, res) {
+  try {
+    const post = await Post.find(req.query)
+      .populate({ path: "likes", select: ["email", "username"] })
+      .populate({ path: "comments.user", select: ["email", "username"] })
+      .populate({
+        path: "user",
+        select: ["email", "username", "images", "role"],
+      })
+      .populate({ path: "subcategory", select: ["name", "image"] })
+      .sort({ createdAt: -1 });
 
-
-async function GetAllPost(req,res){
-    try{
-        const post = await Post.find(req.query).populate({path:"likes",select: ['email','username']})
-                                               .populate({path:"comments.user",select: ['email','username']})
-                                               .populate({path:"user",select: ['email','username','images','role']})
-                                               .populate({path:"subcategory",select: ['name','image']})
-                                               .sort({createdAt: -1})
-
-        if(post){
-            var response = {
-                status: 200,
-                data: post,
-                message: 'successfull',
-              };
-              return res.status(200).send(response);
-        } else{
-            var response = {
-                status: 201,
-                message: "No Post Found",
-              };
-            return res.status(201).send(response);
-        }
-    } catch (error) {
-        var response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
-        };
-    
-        return res.status(400).send(response);
+    if (post) {
+      var response = {
+        status: 200,
+        data: post,
+        message: "successfull",
+      };
+      return res.status(200).send(response);
+    } else {
+      var response = {
+        status: 201,
+        message: "No Post Found",
+      };
+      return res.status(201).send(response);
     }
+  } catch (error) {
+    var response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
 }
 
+async function GetPost(req, res) {
+  try {
+    const post = await Post.findById(req.params.id)
+      .populate({ path: "likes", select: ["email", "username"] })
+      .populate({ path: "comments.user", select: ["email", "username"] })
+      .populate({ path: "user", select: ["email", "username", "images"] })
+      .populate({ path: "subcategory", select: ["name", "image"] });
 
-async function GetPost(req,res){
-    try{
-        const post = await Post.findById(req.params.id).populate({path:"likes",select: ['email','username']})
-                                                       .populate({path:"comments.user",select: ['email','username']})
-                                                       .populate({path:"user",select: ['email','username','images']})
-                                                       .populate({path:"subcategory",select: ['name','image']})
-
-        if(post){
-            var response = {
-                status: 200,
-                data: post,
-                message: 'successfull',
-              };
-              return res.status(200).send(response);
-        } else{
-            var response = {
-                status: 201,
-                message: "No Post Found",
-              };
-            return res.status(201).send(response);
-        }
-    } catch (error) {
-        var response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
-        };
-    
-        return res.status(400).send(response);
+    if (post) {
+      var response = {
+        status: 200,
+        data: post,
+        message: "successfull",
+      };
+      return res.status(200).send(response);
+    } else {
+      var response = {
+        status: 201,
+        message: "No Post Found",
+      };
+      return res.status(201).send(response);
     }
+  } catch (error) {
+    var response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
 }
 
+async function DeletePost(req, res) {
+  try {
+    const post = await Post.findById(req.params.id);
 
-async function DeletePost(req,res){
-    try{
-
-        const post = await Post.findById(req.params.id)
-        
-        if(post){
-            //await Post.remove()
-            Post.findByIdAndDelete(req.params.id,(err, docs)=> {
-                if (err) {
-                  var response = {
-                    status: 201,
-                    message: err,
-                    messages: "Post delete failed",
-                  };
-                  return res.status(201).send(response);
-                } else {
-                    var response = {
-                        status: 200,
-                        message:"Post removed successfully",
-                        data:docs,
-                    };
-                  return res.status(200).send(response);
-                }
-              });
-        } else{
-            var response = {
-                status: 201,
-                message: "No Post Found",
-              };
-            return res.status(201).send(response);
-        }
-
-    } catch (error) {
-        response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
-        };
-    
-        return res.status(400).send(response);
-    }
-}
-
-
-async function UpdatePost(req,res){
-    try{
-        if(req.params.id != ""){
-
-            const {header, caption,online_available,brand} = req.body;
-
-            const post = await Post.findById(req.params.id)
-        
-            if(post){
-                const data = {
-                    caption:caption,
-                    header:header,
-                    online_available:online_available,
-                    brand:brand
-                }
-                Post.findByIdAndUpdate(req.params.id,{$set:data},{new:true},(err, docs)=> {
-                    if (err) {
-                      var response = {
-                        status: 201,
-                        message: err,
-                      };
-                      return res.status(201).send(response);
-                    } else {
-                        var response = {
-                            status: 200,
-                            message:"Post Updated successfully",
-                            data:docs,
-                          };
-                          return res.status(200).send(response);
-                    }
-                  });
-            } else{
-                var response = {
-                    status: 201,
-                    message: "No Post Found",
-                  };
-                return res.status(201).send(response);
-            }
+    if (post) {
+      //await Post.remove()
+      Post.findByIdAndDelete(req.params.id, (err, docs) => {
+        if (err) {
+          var response = {
+            status: 201,
+            message: err,
+            messages: "Post delete failed",
+          };
+          return res.status(201).send(response);
         } else {
-            var response = {
-                status: 201,
-                message: "Enter Post id",
-              };
-            return res.status(201).send(response);
-        }   
-    } catch (error) {
-        response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
-        };
-    
-        return res.status(400).send(response);
+          var response = {
+            status: 200,
+            message: "Post removed successfully",
+            data: docs,
+          };
+          return res.status(200).send(response);
+        }
+      });
+    } else {
+      var response = {
+        status: 201,
+        message: "No Post Found",
+      };
+      return res.status(201).send(response);
     }
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
 }
 
+async function UpdatePost(req, res) {
+  try {
+    if (req.params.id != "") {
+      const { header, caption, online_available, brand } = req.body;
+
+      const post = await Post.findById(req.params.id);
+
+      if (post) {
+        const data = {
+          caption: caption,
+          header: header,
+          online_available: online_available,
+          brand: brand,
+        };
+        Post.findByIdAndUpdate(
+          req.params.id,
+          { $set: data },
+          { new: true },
+          (err, docs) => {
+            if (err) {
+              var response = {
+                status: 201,
+                message: err,
+              };
+              return res.status(201).send(response);
+            } else {
+              var response = {
+                status: 200,
+                message: "Post Updated successfully",
+                data: docs,
+              };
+              return res.status(200).send(response);
+            }
+          }
+        );
+      } else {
+        var response = {
+          status: 201,
+          message: "No Post Found",
+        };
+        return res.status(201).send(response);
+      }
+    } else {
+      var response = {
+        status: 201,
+        message: "Enter Post id",
+      };
+      return res.status(201).send(response);
+    }
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
+}
 
 // Post Likes
-async function Likes(req,res){
-    try{
-        const data = jwt_decode(req.headers.token);
-        const user_id = data.user_id;
-        // console.log(data);
+async function Likes(req, res) {
+  try {
+    const data = jwt_decode(req.headers.token);
+    const user_id = data.user_id;
+    // console.log(data);
 
-        const post = await Post.findById(req.params.id);
-        const user = await User.findById(user_id)
-        //console.log(post);
+    const post = await Post.findById(req.params.id);
+    const user = await User.findById(user_id);
+    //console.log(post);
 
-        if(post){
-            const owner = await User.findById(post.user)
-            //console.log(owner);
-            var isLiked = false;
+    if (post) {
+      const owner = await User.findById(post.user);
+      //console.log(owner);
+      var isLiked = false;
 
-            // console.log(post.likes.length);
-            for (var a = 0; a < post.likes.length; a++) {
-                var liker = post.likes[a];
+      // console.log(post.likes.length);
+      for (var a = 0; a < post.likes.length; a++) {
+        var liker = post.likes[a];
 
-                if (liker == user_id) {
-                    isLiked = true;
-                    break;
-                }
-            }
-            // console.log(isLiked);
-            if(isLiked){
-                post.likes.pull(user_id)
-                await post.save();
-
-                        // Unlike so Delete Notification
-                        const data = await Notification.aggregate([{$match:{
-                                                                      $and:[
-                                                                          {'owner':owner._id, 'user':user._id,"post_id":post._id},
-                                                                          {'type':"like"}
-                                                                      ]
-                                                                      }
-                                                                      }])
-
-                        //console.log(data);
-                        await Notification.findByIdAndDelete(data[0]._id,{new:true});
-
-                var response = {
-                    status: 200,
-                    message: 'Post has been Disliked.',
-                    data: post,
-                  };
-                  return res.status(200).send(response);
-            }
-            else {
-                post.likes.push(user_id)
-                await post.save();
-                
-                if(user.role == "USER"){
-                    var not = {
-                      owner:owner._id,
-                      user:user._id,
-                      post_id:post._id,
-                      message: `${user.username} Like ur Post.`,
-                      type:"like",
-                    }
-                    await Notification.create(not)
-                  } else {
-                    var not = {
-                      owner:owner._id,
-                      user:user._id,
-                      post_id:post._id,
-                      message: `${user.name} Like ur Post.`,
-                      type:"like",
-                    }
-                    await Notification.create(not)
-                }
-
-                var response = {
-                    status: 200,
-                    message: 'Post has been liked.', 
-                    data: post,
-                  };
-                  return res.status(200).send(response);
-            }
-            
-        } else{
-            var response = {
-                status: 201,
-                message: "No Post Found",
-              };
-            return res.status(201).send(response);
+        if (liker == user_id) {
+          isLiked = true;
+          break;
         }
-   
-    } catch (error) {
-        response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
-        };
-    
-        return res.status(400).send(response);
-    }
-}
+      }
+      // console.log(isLiked);
+      if (isLiked) {
+        post.likes.pull(user_id);
+        await post.save();
 
+        // Unlike so Delete Notification
+        const data = await Notification.aggregate([
+          {
+            $match: {
+              $and: [
+                { owner: owner._id, user: user._id, post_id: post._id },
+                { type: "like" },
+              ],
+            },
+          },
+        ]);
+
+        //console.log(data);
+        await Notification.findByIdAndDelete(data[0]._id, { new: true });
+
+        var response = {
+          status: 200,
+          message: "Post has been Disliked.",
+          data: post,
+        };
+        return res.status(200).send(response);
+      } else {
+        post.likes.push(user_id);
+        await post.save();
+
+        if (user.role == "USER") {
+          var not = {
+            owner: owner._id,
+            user: user._id,
+            post_id: post._id,
+            message: `${user.username} Like ur Post.`,
+            type: "like",
+          };
+          await Notification.create(not);
+        } else {
+          var not = {
+            owner: owner._id,
+            user: user._id,
+            post_id: post._id,
+            message: `${user.name} Like ur Post.`,
+            type: "like",
+          };
+          await Notification.create(not);
+        }
+
+        var response = {
+          status: 200,
+          message: "Post has been liked.",
+          data: post,
+        };
+        return res.status(200).send(response);
+      }
+    } else {
+      var response = {
+        status: 201,
+        message: "No Post Found",
+      };
+      return res.status(201).send(response);
+    }
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
+}
 
 // Post Comments
-async function Comments(req,res){
-    try{
-        const data = jwt_decode(req.headers.token);
-        const user_id = data.user_id;
-        // console.log(data);
+async function Comments(req, res) {
+  try {
+    const data = jwt_decode(req.headers.token);
+    const user_id = data.user_id;
+    // console.log(data);
 
-        const {comment} = req.body;
+    const { comment } = req.body;
 
-        const post = await Post.findById(req.params.id);
-        const user = await User.findById(user_id)
+    const post = await Post.findById(req.params.id);
+    const user = await User.findById(user_id);
 
-        if(post){
-            const owner = await User.findById(post.user)
+    if (post) {
+      const owner = await User.findById(post.user);
+      var datas = {
+        comment: comment,
+        user: user_id,
+      };
 
-            var datas ={
-                comment: comment,
-                user: user_id,
-            }
+      post.comments.push(datas);
+      await post.save();
 
-            post.comments.push(datas);
-            await post.save();
-
-            if(user.role == "USER"){
-                var not = {
-                  owner:owner._id,
-                  user:user._id,
-                  post_id:post._id,
-                  message: `${user.username} Comments on ur Post.`,
-                  type:"comment",
-                }
-                await Notification.create(not)
-              } else {
-                var not = {
-                  owner:owner._id,
-                  user:user._id,
-                  post_id:post._id,
-                  message: `${user.name} Comments on ur Post.`,
-                  type:"comment",
-                }
-                await Notification.create(not)
-            }
-            var response = {
-                    status: 200,
-                    message: `Post Commented`, 
-                    data: post,
-                };
-            return res.status(200).send(response);
-        } else{
-            var response = {
-                status: 201,
-                message: "No Post Found",
-              };
-            return res.status(201).send(response);
-        }
-   
-    } catch (error) {
-        response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
+      if (user.role == "USER") {
+        var not = {
+          owner: owner._id,
+          user: user._id,
+          post_id: post._id,
+          message: `${user.username} Comments on ur Post.`,
+          type: "comment",
         };
-    
-        return res.status(400).send(response);
+        await Notification.create(not);
+      } else {
+        var not = {
+          owner: owner._id,
+          user: user._id,
+          post_id: post._id,
+          message: `${user.name} Comments on ur Post.`,
+          type: "comment",
+        };
+        await Notification.create(not);
+      }
+      var response = {
+        status: 200,
+        message: `Post Commented`,
+        data: post,
+      };
+      return res.status(200).send(response);
+    } else {
+      var response = {
+        status: 201,
+        message: "No Post Found",
+      };
+      return res.status(201).send(response);
     }
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
 }
 
+async function CommentLike(req, res) {
+  try {
+    const data = jwt_decode(req.headers.token);
+    const user_id = data.user_id;
+    // console.log(data);
+    /*-------*/
+    //   const checkLike = Post.comments.findIndex(
+    //     (like) => like._id.toString() === id.toString()
+    //   );
+    //   console.log("check like =",checkLike);
+    /*-------*/
 
-async function DeleteComments(req,res){
-    try{
-        const data = jwt_decode(req.headers.token);
-        const user_id = data.user_id;
+    const post = await Post.findById(req.params.id).populate({
+      path: `comments:{likec}`,
+      select: ["id", "username"],
+    });
 
-        const {comment_id} = req.body;
+    const user = await User.findById(user_id);
 
-        const post = await Post.findById(req.params.id)
-        const user = await User.findById(user_id)
+    //console.log(post);
+    const { likec } = req.body;
 
+    console.log("like data=", post);
+    if (post) {
+      const owner = await User.findById(post.comments.likec);
+      //console.log(owner);
+      var datas = {
+        likec: likec,
+        user: user_id,
+      };
+      console.log("likc data ", datas);
 
-        if(post.comments.length>0){
+      var isLiked = false;
 
-            const owner = await User.findById(post.user)
+      // console.log(post.likes.length);
+      for (var a = 0; a < post.likes.length; a++) {
+        var liker = post.likes[a];
 
-            post.comments.forEach(async(data)=>{
-                // console.log(data._id);
-                if(comment_id == data._id.toString())
-                {
-                    //post.comments.pull(datas);
-                    post.comments.pull(data);
-                    await post.save();
+        if (liker == user_id) {
+          isLiked = true;
+          break;
+        }
+      }
+      // console.log(isLiked);
+      if (isLiked) {
+        post.likes.pull(user_id);
+        await post.save();
 
-                    // Delete Comment so Delete Notification
-                    const datas = await Notification.aggregate([{$match:{
-                        $and:[
-                            {'owner':owner._id, 'user':user._id,"post_id":post._id},
-                            {'type':"comment"}
-                        ]
-                        }
-                        }])
+        // Unlike so Delete Notification
+        const data = await Notification.aggregate([
+          {
+            $match: {
+              $and: [
+                { owner: owner._id, user: user._id, post_id: post._id },
+                { type: "like" },
+              ],
+            },
+          },
+        ]);
 
-                    //console.log(data);
-                    await Notification.findByIdAndDelete(datas[0]._id,{new:true});
+        //console.log(data);
+        await Notification.findByIdAndDelete(data[0]._id, { new: true });
 
-                    var response = 
-                        {
-                              status: 200,
-                              message:"Comment removed successfully",
-                              comments : data,
-                              data:post,
-                        };
-                    return res.status(200).send(response);
-                }
-            })
+        var response = {
+          status: 200,
+          message: "Post has been Disliked.",
+          data: post,
+        };
+        return res.status(200).send(response);
+      } else {
+        post.likes.push(user_id);
+        await post.save();
+
+        if (user.role == "USER") {
+          var not = {
+            owner: owner._id,
+            user: user._id,
+            post_id: post._id,
+            message: `${user.username} Like ur Post.`,
+            type: "like",
+          };
+          await Notification.create(not);
         } else {
-            var response = {
-                    status: 201,
-                    message: "No Comments Found",
-                  };
-            return res.status(201).send(response);
+          var not = {
+            owner: owner._id,
+            user: user._id,
+            post_id: post._id,
+            message: `${user.name} Like ur Post.`,
+            type: "like",
+          };
+          await Notification.create(not);
         }
 
-       // console.log(post.comments[0]._id.toString());
-       // console.log(comment_id);
-        
-        
-       
-        // if(post){
-        //     //await Post.remove()
-        //     Post.findByIdAndDelete(req.params.id,(err, docs)=> {
-        //         if (err) {
-        //           var response = {
-        //             status: 201,
-        //             message: err,
-        //             messages: "Comment delete failed",
-        //           };
-        //           return res.status(201).send(response);
-        //         } else {
-        //             var response = {
-        //                 status: 200,
-        //                 message:"Comment removed successfully",
-        //                 data:docs,
-        //             };
-        //           return res.status(200).send(response);
-        //         }
-        //       });
-        // } else{
-        //     var response = {
-        //         status: 201,
-        //         message: "No Comment Found",
-        //       };
-        //     return res.status(201).send(response);
-        // }
-
-    } catch (error) {
-        response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
+        var response = {
+          status: 200,
+          message: "Post has been liked.",
+          data: post,
         };
-    
-        return res.status(400).send(response);
+        return res.status(200).send(response);
+      }
+    } else {
+      var response = {
+        status: 201,
+        message: "No Post Found",
+      };
+      return res.status(201).send(response);
     }
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
 }
 
+async function DeleteComments(req, res) {
+  try {
+    const data = jwt_decode(req.headers.token);
+    const user_id = data.user_id;
+
+    const { comment_id } = req.body;
+
+    const post = await Post.findById(req.params.id);
+    const user = await User.findById(user_id);
+
+    if (post.comments.length > 0) {
+      const owner = await User.findById(post.user);
+
+      post.comments.forEach(async (data) => {
+        // console.log(data._id);
+        if (comment_id == data._id.toString()) {
+          //post.comments.pull(datas);
+          post.comments.pull(data);
+          await post.save();
+
+          // Delete Comment so Delete Notification
+          const datas = await Notification.aggregate([
+            {
+              $match: {
+                $and: [
+                  { owner: owner._id, user: user._id, post_id: post._id },
+                  { type: "comment" },
+                ],
+              },
+            },
+          ]);
+
+          //console.log(data);
+          await Notification.findByIdAndDelete(datas[0]._id, { new: true });
+
+          var response = {
+            status: 200,
+            message: "Comment removed successfully",
+            comments: data,
+            data: post,
+          };
+          return res.status(200).send(response);
+        }
+      });
+    } else {
+      var response = {
+        status: 201,
+        message: "No Comments Found",
+      };
+      return res.status(201).send(response);
+    }
+
+    // console.log(post.comments[0]._id.toString());
+    // console.log(comment_id);
+
+    // if(post){
+    //     //await Post.remove()
+    //     Post.findByIdAndDelete(req.params.id,(err, docs)=> {
+    //         if (err) {
+    //           var response = {
+    //             status: 201,
+    //             message: err,
+    //             messages: "Comment delete failed",
+    //           };
+    //           return res.status(201).send(response);
+    //         } else {
+    //             var response = {
+    //                 status: 200,
+    //                 message:"Comment removed successfully",
+    //                 data:docs,
+    //             };
+    //           return res.status(200).send(response);
+    //         }
+    //       });
+    // } else{
+    //     var response = {
+    //         status: 201,
+    //         message: "No Comment Found",
+    //       };
+    //     return res.status(201).send(response);
+    // }
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+
+    return res.status(400).send(response);
+  }
+}
 
 //Only Following users Post
-async function FollowingPost(req,res){
-    try{
-        const todayDate = getFormattedDate();
-        const today = new Date();
-        const minutes = today.getMinutes() < 10 ? "0" + today.getMinutes() : today.getMinutes();
-        const time = today.getHours() + ":" + minutes;
-        
-        response = {
-            status: 200,
-            message: 'Post Commented', 
-            time: time,
-            todayDate: todayDate,
-        };
-        return res.status(400).send(response);
-        
-    } catch (error) {
-        response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
-        };
-        return res.status(400).send(response);
-    }
+async function FollowingPost(req, res) {
+  try {
+    const todayDate = getFormattedDate();
+    const today = new Date();
+    const minutes =
+      today.getMinutes() < 10 ? "0" + today.getMinutes() : today.getMinutes();
+    const time = today.getHours() + ":" + minutes;
+
+    response = {
+      status: 200,
+      message: "Post Commented",
+      time: time,
+      todayDate: todayDate,
+    };
+    return res.status(400).send(response);
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+    return res.status(400).send(response);
+  }
 }
 
-
-async function GetPostImage(req,res){
-    try{
-        res.download("./uploads/Post/"+req.params.file);
-    } catch (error) {
-        response = {
-          errors:error,
-          status: 400,
-          message: "Operation was not successful",
-        };
-        return res.status(400).send(response);
-    }
+async function GetPostImage(req, res) {
+  try {
+    res.download("./uploads/Post/" + req.params.file);
+  } catch (error) {
+    response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
+    return res.status(400).send(response);
+  }
 }
 
-
-
-module.exports ={
-    Addpost,
-    GetAllPost,
-    GetPost,
-    DeletePost,
-    UpdatePost,
-    Likes,
-    Comments,
-    DeleteComments,
-    FollowingPost,
-    GetPostImage,
+module.exports = {
+  Addpost,
+  GetAllPost,
+  GetPost,
+  DeletePost,
+  UpdatePost,
+  Likes,
+  Comments,
+  DeleteComments,
+  FollowingPost,
+  GetPostImage,
+  CommentLike,
 };
 
-
 function getFormattedDate() {
-    const date = new Date();
-    const year = date.getFullYear();
-    let month = (1 + date.getMonth()).toString();
+  const date = new Date();
+  const year = date.getFullYear();
+  let month = (1 + date.getMonth()).toString();
 
-    month = month.length > 1 ? month : "0" + month;
-    let day = date.getDate().toString();
+  month = month.length > 1 ? month : "0" + month;
+  let day = date.getDate().toString();
 
-    day = day.length > 1 ? day : "0" + day;
+  day = day.length > 1 ? day : "0" + day;
 
-    return month + "/" + day + "/" + year;
+  return month + "/" + day + "/" + year;
 }

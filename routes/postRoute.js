@@ -13,6 +13,7 @@ const {
     DeleteComments,
     FollowingPost,
     GetPostImage,
+    CommentLike,
 } = require("../controller/post")
 
 // set storage
@@ -54,6 +55,7 @@ router.patch("/update/:id",UpdatePost);
 
 // Posts Likes route
 router.post("/likes/:id",Likes);
+router.post("/commentlike/:id",CommentLike);
 
 // Posts Comments route
 router.post("/comments/:id",Comments);

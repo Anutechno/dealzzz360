@@ -1,39 +1,42 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const postSchema = new mongoose.Schema({
+const postSchema = new mongoose.Schema(
+  {
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"User"
-        // required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      // required: true,
     },
     images: [
-        {
-          public_id: {
-            type: String,
-            required: true,
-          },
-          url: {
-            type: String,
-            required: true,
-          },
+      {
+        public_id: {
+          type: String,
+          required: true,
         },
-      ],
-    caption:{
-        type:String,
+        url: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    caption: {
+      type: String,
     },
-    header:{
-        type:String,
+    header: {
+      type: String,
     },
-    online_available:{
-        type:String,
+    online_available: {
+      type: String,
     },
-    brand:{
-        type:String,
+    brand: {
+      type: String,
     },
-    subcategory:[{
+    subcategory: [
+      {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Subcategory",
-    }],
+      },
+    ],
     // Multer
     // filename:{
     //     type : String,
@@ -46,42 +49,50 @@ const postSchema = new mongoose.Schema({
     //     type : String,
     //     //required: true
     // },
-    type:{
-        type:String,
+    type: {
+      type: String,
     },
-    like_count:{
-        type:String,
+    like_count: {
+      type: String,
     },
-    comment_icon:{
-        type:String,
+    comment_icon: {
+      type: String,
     },
-    createdAt:{
-        type: Date,
-        default: new Date(),
+    createdAt: {
+      type: Date,
+      default: new Date(),
     },
-    likes:[{
+    likes: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"User"
-    }],
-    comments:[{
-        comment:{
-            type:String,
-        },
-        user:{
+        ref: "User",
+      },
+    ],
+    comments: [
+      {
+        likec: [
+          {
             type: mongoose.Schema.Types.ObjectId,
-            ref:"User"
+            ref: "User",
+          },
+        ],
+        comment: {
+          type: String,
         },
-        createdAt:{
-            type: Date,
-            default: new Date(),
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
         },
-    }],
-},
-{
-    timestamps:true,
-}
-)
+        createdAt: {
+          type: Date,
+          default: new Date(),
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  }
+);
 
-
-module.exports = mongoose.model("Post",postSchema);
-
+module.exports = mongoose.model("Post", postSchema);

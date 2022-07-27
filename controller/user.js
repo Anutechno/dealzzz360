@@ -1295,11 +1295,14 @@ async function Invite(req, res) {
       return res.status(201).send(response);
     } else {
       if (user.name || user.role || user.id) {
-       const url=`/${user.name}/${user.role}/${user.id}`;
-
+        // const url = `/${user.name}/${user.role}/${user.id}`; 
+        const url =`?user=${user.name}&role=${user.role}&id=${user.id}`;
+        const baseUrl = "http://localhost:5000/dealz360/user";
+        const GenUrl = baseUrl + url;
         var response = {
           status: 200,
           data: user,
+          datas: GenUrl,
           message: "successfull",
         };
         return res.status(200).send(response);
