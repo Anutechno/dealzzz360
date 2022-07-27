@@ -1295,8 +1295,8 @@ async function Invite(req, res) {
       return res.status(201).send(response);
     } else {
       if (user.name || user.role || user.id) {
-       const url=`/${name}/${role}/${id}`;
-       
+       const url=`/${user.name}/${user.role}/${user.id}`;
+
         var response = {
           status: 200,
           data: user,
