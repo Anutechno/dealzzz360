@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-
 // New Schema
 const categorySchema = new mongoose.Schema({
     name:{
@@ -18,7 +17,6 @@ const categorySchema = new mongoose.Schema({
 {
     timestamps:true,
 });
-
 
 const subcategorySchema = new mongoose.Schema({
     category_id:{

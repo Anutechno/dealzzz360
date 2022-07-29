@@ -237,7 +237,7 @@ async function GetAllPost(req, res) {
       .populate({ path: "comments.user", select: ["email", "username"] })
       .populate({
         path: "user",
-        select: ["email", "username", "images", "role"],
+        select: ["email", "username", "images", "role","name"],
       })
       .populate({ path: "subcategory", select: ["name", "image"] })
       .sort({ createdAt: -1 });

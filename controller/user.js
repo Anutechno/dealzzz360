@@ -336,7 +336,7 @@ async function Usersignin(req, res) {
 }
 
 async function GetAllUser(req, res) {
-  try {
+  // try {
     const user = await User.find(req.query)
       .populate({ path: "followers", select: ["email", "username"] })
       .populate({ path: "following", select: ["email", "username"] })
@@ -358,15 +358,15 @@ async function GetAllUser(req, res) {
       };
       return res.status(201).send(response);
     }
-  } catch (error) {
-    response = {
-      errors: error,
-      status: 400,
-      message: "Operation was not successful",
-    };
+  // } catch (error) {
+  //   response = {
+  //     errors: error,
+  //     status: 400,
+  //     message: "Operation was not successful",
+  //   };
 
-    return res.status(400).send(response);
-  }
+  //   return res.status(400).send(response);
+  // }
 }
 
 async function GetUser(req, res) {

@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema(
-  {
+{
     name: {
       type: String,
     },
@@ -157,4 +157,3 @@ module.exports = mongoose.model("User", userSchema);
 
 //     return resetToken;
 // }
-
