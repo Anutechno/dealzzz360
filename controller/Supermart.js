@@ -6,122 +6,122 @@ var Sendemail = require("../helper/SendEmail");
 const cloudinary = require("cloudinary");
 
 async function Usersignup(req, res) {
-  try{
-  const { email, username, password, role } = req.body;
+  try {
+    const { email, username, password, role } = req.body;
 
-  //console.log(req.files)
-  if (
-    email == "" ||
-    password == "" ||
-    username == "" ||
-    role == "" ||
-    req.files == ""
-  ) {
-    var response = {
-      status: 201,
-      message:
-        "email, username, role and password and Image can not be empty !!",
-    };
-    return res.status(201).send(response);
-  }
-
-  let datas = await User.findOne({ username });
-  if (datas) {
-    res.status(201).json({
-      status: 201,
-      success: false,
-      message: "Username Already Exists",
-    });
-    return;
-  }
-  let data = await User.findOne({ email });
-  if (data) {
-    res.status(201).json({
-      status: 201,
-      success: false,
-      message: "Email Already Exists",
-    });
-    return;
-  }
-  if (req.files.length > 1) {
-    const myCloud = [];
-    for (var a = 0; a < req.files.length; a++) {
-      const img = await cloudinary.v2.uploader.upload(req.files[a].path, {
-        folder: "/USERS",
-      });
-      myCloud.push(img);
+    //console.log(req.files)
+    if (
+      email == "" ||
+      password == "" ||
+      username == "" ||
+      role == "" ||
+      req.files == ""
+    ) {
+      var response = {
+        status: 201,
+        message:
+          "email, username, role and password and Image can not be empty !!",
+      };
+      return res.status(201).send(response);
     }
 
-    const userdata = {
-      name: req.body.name,
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      username: req.body.username,
-      email: req.body.email,
-      password: validation.hashPassword(req.body.password),
-      mob_no: req.body.mob_no,
-      bio: req.body.bio,
-      bio_dob: req.body.bio_dob,
-      role: req.body.role,
-      profile_type: req.body.profile_type,
-      location: req.body.location,
-      images: {
-        public_id: myCloud[0].public_id,
-        url: myCloud[0].secure_url,
-      },
-      cimages: {
-        public_id: myCloud[1].public_id,
-        url: myCloud[1].secure_url,
-      },
-    };
+    let datas = await User.findOne({ username });
+    if (datas) {
+      res.status(201).json({
+        status: 201,
+        success: false,
+        message: "Username Already Exists",
+      });
+      return;
+    }
+    let data = await User.findOne({ email });
+    if (data) {
+      res.status(201).json({
+        status: 201,
+        success: false,
+        message: "Email Already Exists",
+      });
+      return;
+    }
+    if (req.files.length > 1) {
+      const myCloud = [];
+      for (var a = 0; a < req.files.length; a++) {
+        const img = await cloudinary.v2.uploader.upload(req.files[a].path, {
+          folder: "/USERS",
+        });
+        myCloud.push(img);
+      }
 
-    const user = await User.create(userdata);
-
-    var response = {
-      status: 200,
-      message: `${role} signup successfully`,
-      data: user,
-    };
-    return res.status(200).send(response);
-  } else {
-    const myCloud = await cloudinary.v2.uploader.upload(req.files[0].path, {
-      folder: "/USERS",
-    });
-
-    const userdata = {
-      name: req.body.name,
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      username: req.body.username,
-      email: req.body.email,
-      password: validation.hashPassword(req.body.password),
-      mob_no: req.body.mob_no,
-      bio: req.body.bio,
-      bio_dob: req.body.bio_dob,
-      role: req.body.role,
-      profile_type: req.body.profile_type,
-      location: req.body.location,
-      images: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
-    };
-
-    const user = await User.create(userdata);
-
-    var response = {
-      status: 200,
-      message: `${role} signup successfully`,
-      data: user,
-    };
-    return res.status(200).send(response);
-  }
-  } catch (error) {
-      var response = {
-        errors:error,
-        status: 400,
-        message: "Operation was not successful",
+      const userdata = {
+        name: req.body.name,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        username: req.body.username,
+        email: req.body.email,
+        password: validation.hashPassword(req.body.password),
+        mob_no: req.body.mob_no,
+        bio: req.body.bio,
+        bio_dob: req.body.bio_dob,
+        role: req.body.role,
+        profile_type: req.body.profile_type,
+        location: req.body.location,
+        images: {
+          public_id: myCloud[0].public_id,
+          url: myCloud[0].secure_url,
+        },
+        cimages: {
+          public_id: myCloud[1].public_id,
+          url: myCloud[1].secure_url,
+        },
       };
+
+      const user = await User.create(userdata);
+
+      var response = {
+        status: 200,
+        message: `${role} signup successfully`,
+        data: user,
+      };
+      return res.status(200).send(response);
+    } else {
+      const myCloud = await cloudinary.v2.uploader.upload(req.files[0].path, {
+        folder: "/USERS",
+      });
+
+      const userdata = {
+        name: req.body.name,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        username: req.body.username,
+        email: req.body.email,
+        password: validation.hashPassword(req.body.password),
+        mob_no: req.body.mob_no,
+        bio: req.body.bio,
+        bio_dob: req.body.bio_dob,
+        role: req.body.role,
+        profile_type: req.body.profile_type,
+        location: req.body.location,
+        images: {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        },
+      };
+
+      const user = await User.create(userdata);
+
+      var response = {
+        status: 200,
+        message: `${role} signup successfully`,
+        data: user,
+      };
+      return res.status(200).send(response);
+    }
+  } catch (error) {
+    var response = {
+      errors: error,
+      status: 400,
+      message: "Operation was not successful",
+    };
     return res.status(400).send(response);
   }
 }
@@ -367,19 +367,17 @@ async function UpdateUser(req, res) {
   }
 }
 
-
 async function UpdatePassword(req, res) {
   try {
     if (req.params.id != "") {
       const user = await User.findById(req.params.id);
 
-
       if (user) {
         const data = {
           username: req.body.username,
-          password:req.body.password
+          password: req.body.password,
         };
-        
+
         User.findByIdAndUpdate(
           req.params.id,
           { $set: data },
@@ -408,7 +406,6 @@ async function UpdatePassword(req, res) {
         };
         return res.status(201).send(response);
       }
-
     } else {
       var response = {
         status: 201,
@@ -606,4 +603,5 @@ module.exports = {
   UpdateUser,
   Following,
   ResetPassword,
+  UpdatePassword,
 };
