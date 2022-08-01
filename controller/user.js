@@ -270,7 +270,7 @@ async function Usersignup(req, res) {
 
 async function Usersignin(req, res) {
   try {
-    const { email, username, password } = req.body;
+    const { email, username, password, role } = req.body;
 
     if (email == "" || password == "") {
       var response = {
@@ -283,6 +283,23 @@ async function Usersignin(req, res) {
       var data = await User.findOne({ email: email });
       // console.log(data);
       if (data) {
+        if (role === "SUPERMART") {
+          if (validation.comparePassword(data.password, password)) {
+            const token = validation.generateUserToken(
+              data.email,
+              data._id,
+              (data.role = "SUPERMART"),
+              "logged",
+              1
+            );
+            var response = {
+              status: 200,
+              data: data,
+              token: token,
+              message: "SuperMart signin successfully",
+            };
+          }
+        }
         // console.log(data);
         // console.log(data.password);
         // console.log(validation.comparePassword(password,data.password));
@@ -337,27 +354,27 @@ async function Usersignin(req, res) {
 
 async function GetAllUser(req, res) {
   // try {
-    const user = await User.find(req.query)
-      .populate({ path: "followers", select: ["email", "username"] })
-      .populate({ path: "following", select: ["email", "username"] })
-      .populate({ path: "story", select: ["caption", "images", "seen_by"] })
-      .populate({ path: "category", select: ["name", "image"] })
-      .populate({ path: "subcategory", select: ["name", "image"] });
+  const user = await User.find(req.query)
+    .populate({ path: "followers", select: ["email", "username"] })
+    .populate({ path: "following", select: ["email", "username"] })
+    .populate({ path: "story", select: ["caption", "images", "seen_by"] })
+    .populate({ path: "category", select: ["name", "image"] })
+    .populate({ path: "subcategory", select: ["name", "image"] });
 
-    if (user) {
-      var response = {
-        status: 200,
-        data: user,
-        message: "successfull",
-      };
-      return res.status(200).send(response);
-    } else {
-      var response = {
-        status: 201,
-        message: "No User Found",
-      };
-      return res.status(201).send(response);
-    }
+  if (user) {
+    var response = {
+      status: 200,
+      data: user,
+      message: "successfull",
+    };
+    return res.status(200).send(response);
+  } else {
+    var response = {
+      status: 201,
+      message: "No User Found",
+    };
+    return res.status(201).send(response);
+  }
   // } catch (error) {
   //   response = {
   //     errors: error,
@@ -1295,8 +1312,8 @@ async function Invite(req, res) {
       return res.status(201).send(response);
     } else {
       if (user.name || user.role || user.id) {
-        // const url = `/${user.name}/${user.role}/${user.id}`; 
-        const url =`?user=${user.name}&role=${user.role}&id=${user.id}`;
+        // const url = `/${user.name}/${user.role}/${user.id}`;
+        const url = `?user=${user.name}&role=${user.role}&id=${user.id}`;
         const baseUrl = "http://localhost:5000/dealz360/user";
         const GenUrl = baseUrl + url;
         var response = {
