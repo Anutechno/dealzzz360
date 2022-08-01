@@ -270,9 +270,9 @@ async function Usersignup(req, res) {
 
 async function Usersignin(req, res) {
   try {
-    const { email, username, password, role } = req.body;
+    const { email, password, role } = req.body;
 
-    if (email == "" || password == "") {
+    if (email == "" || password == "" || role == "") {
       var response = {
         status: 201,
         message: "email and password can not be empty !!",
@@ -280,15 +280,16 @@ async function Usersignin(req, res) {
       return res.status(201).send(response);
     } else {
       // var data = await User.findOne(email ? { email } : { username });
-      var data = await User.findOne({ email: email });
+      var data = await User.findOne({ email: email, role: role });
       // console.log(data);
       if (data) {
-        if (role === "SUPERMART") {
+        if (data === "SUPERMART") {
           if (validation.comparePassword(data.password, password)) {
+            data.role === "SUPERMART";
             const token = validation.generateUserToken(
               data.email,
               data._id,
-              (data.role = "SUPERMART"),
+              data.role,
               "logged",
               1
             );
